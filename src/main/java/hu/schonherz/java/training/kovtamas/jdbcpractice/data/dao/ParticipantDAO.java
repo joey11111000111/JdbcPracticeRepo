@@ -1,85 +1,54 @@
 package hu.schonherz.java.training.kovtamas.jdbcpractice.data.dao;
 
-import hu.schonherz.java.training.kovtamas.jdbcpractice.data.datasource.DataSourceManager;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dto.ParticipantDTO;
+import hu.schonherz.java.training.kovtamas.jdbcpractice.data.mapper.ParticipantMapper;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.queries.ParticipantQueries;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class ParticipantDAO implements GenericDAO<ParticipantDTO> {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public Collection<ParticipantDTO> findAll() {
-        List<ParticipantDTO> participants = new ArrayList<>();
-
-        try (Connection conn = DataSourceManager.getDataSource().getConnection()) {
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(ParticipantQueries.QUERY_FIND_ALL);
-
-            while (rs.next()) {
-                participants.add(toDTO(rs));
-            }
-        } catch (SQLException sqle) {
-            System.err.println("sql exception while communication with the database");
-            sqle.printStackTrace();
-        }
-
-        return participants;
+        return jdbcTemplate.query(ParticipantQueries.QUERY_FIND_ALL, new ParticipantMapper());
     }
 
     @Override
     public ParticipantDTO findById(int id) {
-        ParticipantDTO dto = new ParticipantDTO();
-
-        try (Connection conn = DataSourceManager.getDataSource().getConnection()) {
-            PreparedStatement prStatement = conn.prepareStatement(ParticipantQueries.QUERY_FIND_BY_ID);
-            prStatement.setInt(1, id);
-            ResultSet rs = prStatement.executeQuery();
-            if (rs.next()) {
-                dto = toDTO(rs);
-            }
-        } catch (SQLException sqle) {
-            System.err.println("sql exception while communication with the database");
-            sqle.printStackTrace();
-        }
-
-        return dto;
+        return jdbcTemplate.queryForObject(ParticipantQueries.QUERY_FIND_BY_ID, new Integer[]{id}, new ParticipantMapper());
     }
 
     @Override
     public int save(ParticipantDTO dto) {
-        try (Connection conn = DataSourceManager.getDataSource().getConnection()) {
-            PreparedStatement prStatement
-                    = conn.prepareStatement(ParticipantQueries.QUERY_SAVE, Statement.RETURN_GENERATED_KEYS);
-            prStatement.setString(1, dto.getName());
-            prStatement.setString(2, dto.getEmail());
-            prStatement.execute();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection cnctn) throws SQLException {
+                PreparedStatement prStatement = cnctn.prepareStatement(
+                        ParticipantQueries.QUERY_SAVE, PreparedStatement.RETURN_GENERATED_KEYS);
+                prStatement.setString(1, dto.getName());
+                prStatement.setString(2, dto.getEmail());
 
-            ResultSet ids = prStatement.getGeneratedKeys();
-            if (ids.next()) {
-                return ids.getInt("id");
+                return prStatement;
             }
-        } catch (SQLException sqle) {
-            System.err.println("sql exception while communication with the database");
-            sqle.printStackTrace();
-        }
+        }, keyHolder);
 
-        return 0;
-    }
+        return keyHolder.getKey().intValue();
 
-    private static ParticipantDTO toDTO(ResultSet rs) throws SQLException {
-        ParticipantDTO dto = new ParticipantDTO();
-        dto.setId(rs.getInt("id"));
-        dto.setName(rs.getString("name"));
-        dto.setEmail(rs.getString("email"));
-
-        return dto;
+        // if the key is not needed:
+//        return jdbcTemplate.update(ParticipantQueries.QUERY_SAVE, dto.getName(), dto.getEmail());
     }
 
 }
