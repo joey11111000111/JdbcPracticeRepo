@@ -1,7 +1,6 @@
 package hu.schonherz.java.training.kovtamas.jdbcpractice.data.main;
 
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dao.GenericDAO;
-import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dao.ParticipantDAO;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dto.ParticipantDTO;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGPoolingDataSource;
@@ -21,7 +20,7 @@ public class Main {
 
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext();
-        System.out.println(((ParticipantDAO) context.getBean("participantDAO")).findAll());
+//        System.out.println(((ParticipantDAO) context.getBean("participantDAO")).findAll());
 
         Main main = new Main();
         main.stuff();

@@ -1,18 +1,17 @@
 package hu.schonherz.java.training.kovtamas.jdbcpractice.service.impl;
 
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dao.GenericDAO;
-import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dao.ParticipantDAO;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.data.dto.ParticipantDTO;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.service.api.ParticipantService;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.service.vo.ParticipantVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ParticipantServiceImpl implements ParticipantService {
 
-    private final GenericDAO dao;
-
-    public ParticipantServiceImpl() {
-        dao = new ParticipantDAO();
-    }
+    @Autowired
+    private GenericDAO<ParticipantDTO> dao;
 
     @Override
     public void save(ParticipantVO vo) {

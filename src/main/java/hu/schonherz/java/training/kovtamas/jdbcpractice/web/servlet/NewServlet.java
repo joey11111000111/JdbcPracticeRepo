@@ -1,22 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package hu.schonherz.java.training.kovtamas.jdbcpractice.web.servlet;
 
 import hu.schonherz.java.training.kovtamas.jdbcpractice.service.api.ParticipantService;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.service.impl.ParticipantServiceImpl;
 import hu.schonherz.java.training.kovtamas.jdbcpractice.service.vo.ParticipantVO;
 import java.io.IOException;
-import java.util.Map;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@WebServlet("/new")
+@Controller
+@RequestMapping(
+        path = "/new",
+        method = {RequestMethod.GET, RequestMethod.POST},
+        produces = MediaType.TEXT_HTML_VALUE)
 public class NewServlet extends HttpServlet {
 
     private final ParticipantService participantService;
